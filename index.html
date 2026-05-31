@@ -867,14 +867,50 @@ const observer = new IntersectionObserver(entries => {
 }, { threshold: 0.12 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-/* ── Contact form ── */
-function handleSubmit(e) {
+/* ── Contact form — Formspree ── */
+async function handleSubmit(e) {
   e.preventDefault();
-  const btn = e.target.querySelector('button[type=submit]');
-  btn.textContent = 'Sent! ✓';
-  btn.style.background = '#4ade80';
-  btn.style.color = '#0c0e14';
-  setTimeout(() => { btn.textContent = 'Send message →'; btn.style.background = ''; btn.style.color = ''; e.target.reset(); }, 3000);
+  const form   = e.target;
+  const btn    = document.getElementById('submit-btn');
+  const status = document.getElementById('form-status');
+
+  // ⚠️  Replace YOUR_FORM_ID below with the ID from formspree.io/new
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
+  btn.style.opacity = '0.7';
+  status.style.display = 'none';
+
+  try {
+    const res = await fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: new FormData(form)
+    });
+
+    if (res.ok) {
+      status.textContent = '✓ Message sent — I\'ll be in touch soon!';
+      status.style.background = 'rgba(74,222,128,0.1)';
+      status.style.color = '#4ade80';
+      status.style.border = '1px solid rgba(74,222,128,0.3)';
+      status.style.display = 'block';
+      form.reset();
+    } else {
+      const data = await res.json();
+      throw new Error(data?.errors?.map(x => x.message).join(', ') || 'Submission failed');
+    }
+  } catch (err) {
+    status.textContent = '✗ ' + (err.message || 'Something went wrong. Please email me directly.');
+    status.style.background = 'rgba(251,113,133,0.1)';
+    status.style.color = '#fb7185';
+    status.style.border = '1px solid rgba(251,113,133,0.3)';
+    status.style.display = 'block';
+  } finally {
+    btn.textContent = 'Send message →';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  }
 }
 
 /* ── Subtle nav highlight on scroll ── */
