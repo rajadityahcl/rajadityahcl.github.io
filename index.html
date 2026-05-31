@@ -821,7 +821,9 @@
       </a>
     </div>
 
-    <form class="contact-form" onsubmit="handleSubmit(event)">
+    <form class="contact-form" id="contact-form" action="https://formspree.io/f/xkoelwdr" method="POST" onsubmit="handleSubmit(event)">
+      <input type="hidden" name="_subject" value="New message from your portfolio!">
+      <input type="hidden" name="_next" value="">
       <div class="form-group">
         <label class="form-label" for="name">Name</label>
         <input class="form-input" type="text" id="name" placeholder="Your name" required>
